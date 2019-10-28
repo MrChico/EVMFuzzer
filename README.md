@@ -28,6 +28,16 @@ You may need to set permissions for executable files in `benchmarkEVMs` folder.
 \> `Run` 
 
 
+## Dependencies
+
+python3, pip3, python3-dev, virtualenv, node
+
+python packages:
+virtualenv
+
+npm packages:
+yargs
+
 ## Quick Start
 
 To start the work, there are THREE steps need to be done.
