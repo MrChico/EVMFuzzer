@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 import subprocess
 import argparse
 import random
@@ -9,7 +8,7 @@ import heapq
 import generate_input
 import json
 
-PROJECT_DIR = "/home/fuying/EVMFuzzer"    # NEED TO BE MODIFIED
+PROJECT_DIR = "/home/m/EVMFuzzer"    # NEED TO BE MODIFIED
 contractPATH = PROJECT_DIR + "/contract/"
 testPATH = PROJECT_DIR + "/TestOut/"
 
@@ -399,26 +398,26 @@ def main():
                             shutil.copyfile(seedPATH + contract, path_list + contract)
 
 
-                            # 4个平台运行
-                            retcode = subprocess.call(
-                                "/usr/local/bin/node " + PROJECT_DIR + "/benchmarkEVMs/jsEVM/js_runcode.js --code " + bincode + "--sig " + sigName + " > " + outputPATH + "jsout.json",
-                                shell=True)
-                            if retcode == 0 :
-                                # print("jsevm Success!")
-                                print(fmt(color.YELLOW, "jsevm Success!"))
-                            else :
-                                # print("jsevm Fail!")
-                                print(fmt(color.RED, "jsevm Fail!"))
+                            # # 4个平台运行
+                            # retcode = subprocess.call(
+                            #     "/usr/bin/node " + PROJECT_DIR + "/benchmarkEVMs/jsEVM/js_runcode.js --code " + bincode + "--sig " + sigName + " > " + outputPATH + "jsout.json",
+                            #     shell=True)
+                            # if retcode == 0 :
+                            #     # print("jsevm Success!")
+                            #     print(fmt(color.YELLOW, "jsevm Success!"))
+                            # else :
+                            #     # print("jsevm Fail!")
+                            #     print(fmt(color.RED, "jsevm Fail!"))
 
-                            retcode = subprocess.call(
-                                "python3 " + PROJECT_DIR + "/benchmarkEVMs/py-evm/test_tx.py --data " + bincode + " --sig " + sigName + " > " + outputPATH + "pyout.json",
-                                shell=True)
-                            if retcode == 0 :
-                                print(fmt(color.YELLOW, "pyevm Success!"))
-                                # print("pyevm Success!")
-                            else :
-                                print(fmt(color.RED, "pyevm Fail!"))
-                                # print("pyevm Fail!")
+                            # retcode = subprocess.call(
+                            #     "python3 " + PROJECT_DIR + "/benchmarkEVMs/py-evm/test_tx.py --data " + bincode + " --sig " + sigName + " > " + outputPATH + "pyout.json",
+                            #     shell=True)
+                            # if retcode == 0 :
+                            #     print(fmt(color.YELLOW, "pyevm Success!"))
+                            #     # print("pyevm Success!")
+                            # else :
+                            #     print(fmt(color.RED, "pyevm Fail!"))
+                            #     # print("pyevm Fail!")
 
                             retcode = subprocess.call(
                                 "./benchmarkEVMs/evm --debug --json --code " + bincode + " --input " + sigName[2:] + " run > " + outputPATH + "gethout.json",
@@ -455,15 +454,15 @@ def main():
                                 print(fmt(color.RED, "aleth Fail!"))
 
                             # test EVM
-                            tmp = ori.replace("A", bincode)
-                            if need_prefix:
-                                cmd = tmp.replace("B", sigName)
-                            else :
-                                cmd = tmp.replace("B", sigName[2:])
+                            # tmp = ori.replace("A", bincode)
+                            # if need_prefix:
+                            #     cmd = tmp.replace("B", sigName)
+                            # else :
+                            #     cmd = tmp.replace("B", sigName[2:])
                             # print(cmd)
-                            retcode = subprocess.call(cmd + " > " + outputPATH + "myout.json",
+                            retcode = subprocess.call("hevm exec --code " + bincode + " --calldata " + sigName + " --gas 10000000000" + " > " + outputPATH + "myout.json",
                                 shell=True)
-                            
+                            print(outputPATH)
                             if retcode == 0 :
                                 print(fmt(color.YELLOW, "TestEVM Success!"))
                             else :
@@ -474,9 +473,9 @@ def main():
 
                             # 比较结果 diff
                             retcode = subprocess.call(
-                                "/usr/local/bin/node " + PROJECT_DIR + "/utils/cmp.js --js_file " 
-                                + outputPATH + "jsout.json" + " --py_file " 
-                                + outputPATH + "pyout.json" + " --cpp_file " 
+                                "/usr/bin/node " + PROJECT_DIR + "/utils/cmp.js --js_file " 
+                                # + outputPATH + "jsout.json" + " --py_file " 
+                                # + outputPATH + "pyout.json" + " --cpp_file " 
                                 + outputPATH + "gethout.json" + " --geth_file " 
                                 + outputPATH + "alethout.json" + " --ret_dir "
                                 + dirPATH + "newdiff" + " --txdata " + sigName + " --resfile " + dirPATH + "result.json" ,
@@ -557,8 +556,8 @@ def main():
                             # record Testing result
                             # print(fmt(color.YELLOW, "Collecting information."))
                             # print("Collecting information.")
-                            jsFile = open(outputPATH + "jsout.json", 'r', encoding='utf-8')
-                            pyFile = open(outputPATH + "pyout.json", 'r', encoding='utf-8')
+                            # jsFile = open(outputPATH + "jsout.json", 'r', encoding='utf-8')
+                            # pyFile = open(outputPATH + "pyout.json", 'r', encoding='utf-8')
                             gethFile = open(outputPATH + "gethout.json", 'r', encoding='utf-8')
                             alethFile = open(outputPATH + "alethout.json", 'r', encoding='utf-8')
                             myFile = open(outputPATH + "myout.json", 'r', encoding='utf-8')
@@ -567,23 +566,23 @@ def main():
                             js_gas, py_gas, geth_gas, aleth_gas, my_gas = 0, 0, 0, 0, 0
                             js_op, py_op, geth_op, aleth_op, my_op = 0, 0, 0, 0, 0
 
-                            for line in jsFile.readlines():
-                                if line.find("output") >= 0 :
-                                    dic = json.loads(line)
-                                    js_output = dic['output']
-                                    js_gas = int(dic['gasUsed'], 16)
-                                else:
-                                    js_op += 1
-                            jsFile.close()
+                            # for line in jsFile.readlines():
+                            #     if line.find("output") >= 0 :
+                            #         dic = json.loads(line)
+                            #         js_output = dic['output']
+                            #         js_gas = int(dic['gasUsed'], 16)
+                            #     else:
+                            #         js_op += 1
+                            # jsFile.close()
 
-                            for line in pyFile.readlines():
-                                if line.find("output") >= 0 :
-                                    dic = json.loads(line)
-                                    py_output = dic['output']
-                                    py_gas = int(dic['gasUsed'], 16)
-                                else:
-                                    py_op += 1
-                            pyFile.close()
+                            # for line in pyFile.readlines():
+                            #     if line.find("output") >= 0 :
+                            #         dic = json.loads(line)
+                            #         py_output = dic['output']
+                            #         py_gas = int(dic['gasUsed'], 16)
+                            #     else:
+                            #         py_op += 1
+                            # pyFile.close()
 
                             for line in gethFile.readlines():
                                 if line.find("output") >= 0 :
@@ -613,10 +612,10 @@ def main():
                             myFile.close()
 
                             # compare and count
-                            avg_gas = int((js_gas + py_gas + geth_gas + aleth_gas) / 4)
-                            avg_op = int((js_op + py_op + geth_op + aleth_op) / 4)
+                            avg_gas = int((geth_gas + aleth_gas) / 2)
+                            avg_op = int((geth_op + aleth_op) / 2)
                             # output
-                            if (my_output != js_output) and (my_output != py_output) and (my_output != geth_output) and (my_output != aleth_output):
+                            if (my_output != geth_output) and (my_output != aleth_output):
                                 X1 += 1
                             # gasUsed
                             if my_gas > int(1.3 * avg_gas) :
